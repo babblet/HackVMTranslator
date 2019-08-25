@@ -1,6 +1,6 @@
 
-use std::ffi::OsString;
-use hack_vm_translator::std::Arguments;
+use ::std::ffi::OsString;
+use hack_vm_translator::arguments::Arguments;
 
 fn main() {
     let environment_arguments: Vec<OsString> = std::env::args_os().collect();
