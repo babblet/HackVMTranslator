@@ -53,7 +53,7 @@ pub mod std {
             }
         }
 
-        pub fn commandType() -> CommandType {
+        pub fn command_type() -> CommandType {
             return CommandType::ARITHMETIC;
         }
 
@@ -77,11 +77,11 @@ pub mod std {
             }
         }
 
-        pub fn writeArithmetic(command: String) {
+        pub fn write_arithmetic(command: String) {
             println!("Write Arithmetic");
         }
 
-        pub fn writePushPop(command: CommandType, segment: String, index: u16) {
+        pub fn write_push_pop(command: CommandType, segment: String, index: u16) {
 
         }
 
