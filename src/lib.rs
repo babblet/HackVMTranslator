@@ -1,38 +1,30 @@
 pub mod helpers {
-
 }
 
 pub mod std {
-    use std::string::String;
+    use std::ffi::OsString;
+    use std::path::Path;
 
     pub struct Arguments {
-        pub in_file: String,
-        pub out_file: String,
+        pub in_file: OsString,
+        pub out_file: OsString,
     }
 
     impl Arguments {
-        fn get_extension(&mut self, s: String) -> Option<bool> {
-            //let chars: Vec<char> = s.chars().collect();
-            return Some(true);
-        }
+        pub fn new(arguments: Vec<OsString>) -> Result<Arguments, String>{
+            let in_file = Path::new(&arguments[0]);
+            let out_file = Path::new(&arguments[1]);
 
-        pub fn new(arguments: Vec<String>) -> Result<Arguments, String>{
-            let in_file: String = arguments[0];
-            let out_file: String = arguments[1];
-            if(Some(self.get_extension("Something"))) {
-                Ok(
-                    Arguments {
-                        in_file: in_file,
-                        out_file: out_file,
-                    }
-                );
+            let in_extension = in_file.extension().unwrap();
+            let out_extension = out_file.extension().unwrap();
+            if in_extension == "vm" && out_extension == "asm" {
+                return Ok(Arguments {
+                  in_file: in_file.file_name().unwrap().to_os_string(),
+                  out_file: out_file.file_name().unwrap().to_os_string(),
+                })
             } else {
-                Err("Argument error");
+                return Err("How to use program text".to_string())
             }
         }
     }
-
-    //pub struct Parser {
-
-    //}
 }

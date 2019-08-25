@@ -1,12 +1,12 @@
-use std::string::String;
+
+use std::ffi::OsString;
 use hack_vm_translator::std::Arguments;
-use hack_vm_translator::std::Parser;
-use hack_vm_translator::helpers;
 
 fn main() {
-    let arguments: Arguments = match Arguments() {
+    let environment_arguments: Vec<OsString> = std::env::args_os().collect();
+    let arguments: Arguments = match Arguments::new(environment_arguments) {
         Ok(args) => args,
-        Err(e) => panic!("Error when parsing arguments: {}", e);
-    }
+        Err(e) => panic!("Error when parsing arguments: {}", e),
+    };
     println!("Hello, world!");
 }
