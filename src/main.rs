@@ -1,4 +1,4 @@
-
+use ::std::ffi::OsStr;
 use ::std::ffi::OsString;
 use hack_vm_translator::arguments::Arguments;
 

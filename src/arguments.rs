@@ -1,3 +1,4 @@
+use std::ffi::OsStr;
 use std::ffi::OsString;
 use std::path::Path;
 pub struct Arguments {
@@ -10,8 +11,8 @@ impl Arguments {
         let in_file = Path::new(&arguments[0]);
         let out_file = Path::new(&arguments[1]);
 
-        let in_extension = in_file.extension().unwrap();
-        let out_extension = out_file.extension().unwrap();
+        let in_extension = in_file.extension().unwrap_or(&OsStr::new(""));
+        let out_extension = out_file.extension().unwrap_or(&OsStr::new(""));
         if in_extension == "vm" && out_extension == "asm" {
             return Ok(Arguments {
               in_file: in_file.file_name().unwrap().to_os_string(),
