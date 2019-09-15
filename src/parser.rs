@@ -7,7 +7,8 @@ use std::path::Path;
 
 pub struct Parser {
     pub arg1: OsString,
-    pub arg2: OsString,
+    pub arg2: u16,
+    pub current_command_type: CommandType,
     pub current_unparsed_line: usize,
     pub in_file_lines: Vec<OsString>,
 }
@@ -29,7 +30,8 @@ impl Parser {
 
         return Parser {
             arg1: OsString::new(),
-            arg2: OsString::new(),
+            arg2: 0,
+            current_command_type: CommandType::NULL,
             current_unparsed_line: 0,
             in_file_lines: lines,
         }
@@ -39,19 +41,47 @@ impl Parser {
         if self.in_file_lines.len() >= self.current_unparsed_line { true } else { false }
     }
 
-    pub fn advance(&self) {
+    pub fn advance(&mut self) {
+        let line: String = String::from(self.in_file_lines[self.current_unparsed_line].to_str().unwrap());
+        let mut start_of_comment: bool = false;
+        let mut is_comment: bool = false;
+        let mut buffer: String = String::new();
+        let mut arg1: String = String::new();
+        let mut arg2: u16 = 0;
+        for c in line.chars() {
+            if c == '/' {
+                if start_of_comment { self.in_file_lines.remove(self.current_unparsed_line);
+                  is_comment = true;
+                  break;
+                } else {
+                    start_of_comment = true;
+                }
+            } else {
+                if c == '\n' { break; }
+                else if c == ' ' {
+                    if !arg1.is_empty() {
+                        arg2 = buffer.parse::<u16>().unwrap();
+                        buffer = "".to_string();
+                    } else {
+                        arg1 = buffer.to_string();
+                        buffer = "".to_string();
+                    }
+                } else {
+                    buffer.push(c);
+                }
+            }
+        }
+
+        if is_comment {
+            self.advance();
+        } else {
+            self.arg1 = OsString::from(arg1);
+            self.arg2 = arg2;
+            self.current_unparsed_line = self.current_unparsed_line + 1;
+        }
     }
 
-    pub fn command_type(&self) -> CommandType {
-        return CommandType::ARITHMETIC;
-    }
-
-    pub fn arg1(&self) -> Option<OsString> {
-
-        return Some(OsString::from("arg1"));
-    }
-
-    pub fn arg2(&self) -> Option<OsString> {
-        return Some(OsString::from("arg2"));
+    pub fn command_type(&mut self) -> CommandType {
+        self.current_command_type
     }
 }
