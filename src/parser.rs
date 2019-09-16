@@ -44,40 +44,52 @@ impl Parser {
 
     pub fn advance(&mut self) {
         let line: String = String::from(self.in_file_lines[self.current_unparsed_line].to_str().unwrap());
-        match line.find("//") {
-            Some(_) => {
+        if line.trim().is_empty() {
                 self.in_file_lines.remove(self.current_unparsed_line);
                 self.advance();
-            },
-            None => {
-                self.current_unparsed_line = self.current_unparsed_line + 1;
-                let mut split = line.split(' ');
-                match split.next() {
-                    Some(x) => {
-                        if      x == "if"       { self.current_command_type = CommandType::IF       }
-                        else if x == "goto"     { self.current_command_type = CommandType::GOTO     }
-                        else if x == "push"     { self.current_command_type = CommandType::PUSH     }
-                        else if x == "pop"      { self.current_command_type = CommandType::POP      }
-                        else if x == "call"     { self.current_command_type = CommandType::CALL     }
-                        else if x == "label"    { self.current_command_type = CommandType::LABEL    }
-                        else if x == "return"   { self.current_command_type = CommandType::RETURN   }
-                        else if x == "function" { self.current_command_type = CommandType::FUNCTION }
-                        else {
-                            self.current_command_type = CommandType::ARITHMETIC
-                        }
-                    },
-                    None => return,
-                };
+        } else {
+            match line.find("//") {
+                Some(_) => {
+                    self.in_file_lines.remove(self.current_unparsed_line);
+                    self.advance();
+                },
+                None => {
+                    self.current_unparsed_line = self.current_unparsed_line + 1;
+                    let mut split = line.split(' ');
+                    match split.next() {
+                        Some(x) => {
+                            println!("command = {}", x);
+                            if      x == "if"       { self.current_command_type = CommandType::IF;       }
+                            else if x == "goto"     { self.current_command_type = CommandType::GOTO;     }
+                            else if x == "push"     { self.current_command_type = CommandType::PUSH;     }
+                            else if x == "pop"      { self.current_command_type = CommandType::POP;      }
+                            else if x == "call"     { self.current_command_type = CommandType::CALL;     }
+                            else if x == "label"    { self.current_command_type = CommandType::LABEL;    }
+                            else if x == "return"   { self.current_command_type = CommandType::RETURN;   }
+                            else if x == "function" { self.current_command_type = CommandType::FUNCTION; }
+                            else {
+                                self.current_command_type = CommandType::ARITHMETIC;
+                            }
+                        },
+                        None => return,
+                    };
 
-                match split.next() {
-                    Some(x) => self.arg1 = OsString::from(x),
-                    None => return,
-                };
+                    match split.next() {
+                        Some(x) => {
+                            println!("arg1 = {}", x);
+                            self.arg1 = OsString::from(x);
+                        },
+                        None => return,
+                    };
 
-                match split.next() {
-                    Some(x) => self.arg2 = x.parse::<u16>().unwrap(),
-                    None => return,
-                };
+                    match split.next() {
+                        Some(x) => {
+                            println!("arg2 = {}", x);
+                            self.arg2 = x.parse::<u16>().unwrap();
+                        },
+                        None => return,
+                    };
+                }
             }
         }
     }
