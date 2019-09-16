@@ -6,6 +6,7 @@ mod tests {
     #[test]
     fn test_arguments_new() {
         let mut args: Vec<OsString> = Vec::new();
+        args.push(OsString::from("run"));
         args.push(OsString::from("in.vm"));
         args.push(OsString::from("out.asm"));
         let arguments: Arguments = match Arguments::new(args) {

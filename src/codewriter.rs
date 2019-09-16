@@ -8,8 +8,12 @@ pub struct CodeWriter {
 
 impl CodeWriter {
     pub fn new(path: &Path) -> CodeWriter {
+        let file: File = match File::create(path) {
+            Ok(file) => file,
+            Err(e) => panic!("Error when creating file: {}", e),
+        };
         return CodeWriter {
-            out_file: File::open(path).unwrap(),
+            out_file: file,
         }
     }
 

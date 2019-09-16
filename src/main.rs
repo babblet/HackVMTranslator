@@ -22,6 +22,7 @@ fn main() {
 
     loop {
         if !parser.has_more_commands() { break }
+        println!("Has more commands! current line = {}", parser.current_unparsed_line);
         parser.advance();
 
         let command_type: CommandType = parser.command_type();
