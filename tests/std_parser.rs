@@ -1,12 +1,12 @@
 #[cfg(test)]
-mod tests {
+mod parser {
     use std::path::Path;
     use std::ffi::OsString;
     use hack_vm_translator::parser::Parser;
     use hack_vm_translator::commandtype::CommandType;
 
     #[test]
-    fn test_parser_new() {
+    fn new() {
       let test_file_path: &Path = Path::new("tests/std_parser/StackArithmetic/SimpleAdd/SimpleAdd.vm");
       let mut parser: Parser = Parser::new(test_file_path);
       assert_eq!(parser.current_unparsed_line, 0);
@@ -17,7 +17,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parser_advance() {
+    fn advance() {
       let test_file_path: &Path = Path::new("tests/std_parser/StackArithmetic/SimpleAdd/SimpleAdd.vm");
       let mut parser: Parser = Parser::new(test_file_path);
       assert_eq!(parser.has_more_commands(), true);
@@ -29,7 +29,7 @@ mod tests {
     }
 
     #[test]
-    fn test_has_more_commands() {
+    fn has_more_commands() {
       let test_file_path: &Path = Path::new("tests/std_parser/StackArithmetic/SimpleAdd/SimpleAdd.vm");
       let parser: Parser = Parser::new(test_file_path);
       assert_eq!(parser.has_more_commands(), true);
