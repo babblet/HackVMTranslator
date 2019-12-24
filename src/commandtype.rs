@@ -1,7 +1,6 @@
 #[derive(PartialEq, Eq, Copy, Clone, Debug)]
 pub enum CommandType {
     NULL,
-    ARITHMETIC,
     PUSH,
     POP,
     LABEL,
@@ -10,4 +9,12 @@ pub enum CommandType {
     FUNCTION,
     RETURN,
     CALL,
+    ADD,
+    NEG,
+    EQ,
+    GT,
+    LT,
+    OR,
+    AND,
+    NOT
 }

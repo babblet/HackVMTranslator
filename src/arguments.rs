@@ -21,6 +21,7 @@ impl Arguments {
               out_file: OsString::from(out_file.to_str().unwrap()),
             })
         } else {
+            //Add message about how to use the cli program
             return Err("How to use program text".to_string())
         }
     }

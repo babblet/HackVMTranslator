@@ -18,7 +18,7 @@ fn main() {
 
 
     let out_path: &Path = Path::new(&arguments.out_file);
-    let codewriter: CodeWriter = CodeWriter::new(out_path);
+    let mut codewriter: CodeWriter = CodeWriter::new(out_path);
 
     loop {
         if !parser.has_more_commands() { break }
@@ -26,15 +26,9 @@ fn main() {
         parser.advance();
 
         let command_type: CommandType = parser.command_type();
-        if command_type == CommandType::PUSH || command_type == CommandType::POP {
-            codewriter.write_push_pop(command_type, &parser.arg1, &parser.arg2);
-        } else {
-            codewriter.write_arithmetic(&parser.arg1);
-        }
+        codewriter.write(command_type, &parser.arg1, &parser.arg2);
         //parse the line
         //take the args form the line and write them in asm to file with CodeWriter
 
     }
-
-    println!("Hello, world!");
 }

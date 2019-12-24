@@ -7,6 +7,7 @@ use std::path::Path;
 pub struct Parser {
     pub arg1: OsString,
     pub arg2: u16,
+    pub command_is_arithmetic: bool,
     pub current_command_type: CommandType,
     pub current_unparsed_line: usize,
     pub in_file_lines: Vec<OsString>,
@@ -32,6 +33,7 @@ impl Parser {
         return Parser {
             arg1: OsString::new(),
             arg2: 0,
+            command_is_arithmetic: false,
             current_command_type: CommandType::NULL,
             current_unparsed_line: 0,
             in_file_lines: lines,
@@ -68,7 +70,15 @@ impl Parser {
                             else if x == "return"   { self.current_command_type = CommandType::RETURN;   }
                             else if x == "function" { self.current_command_type = CommandType::FUNCTION; }
                             else {
-                                self.current_command_type = CommandType::ARITHMETIC;
+                                self.command_is_arithmetic = true;
+                                if      x == "add" { self.current_command_type = CommandType::ADD; }
+                                else if x == "neg" { self.current_command_type = CommandType::NEG; }
+                                else if x == "eq"  { self.current_command_type = CommandType::EQ;  }
+                                else if x == "gt"  { self.current_command_type = CommandType::GT;  }
+                                else if x == "lt"  { self.current_command_type = CommandType::LT;  }
+                                else if x == "or"  { self.current_command_type = CommandType::OR;  }
+                                else if x == "and" { self.current_command_type = CommandType::AND; }
+                                else if x == "not" { self.current_command_type = CommandType::NOT; }
                             }
                         },
                         None => return,

@@ -17,6 +17,13 @@ mod parser {
     }
 
     #[test]
+    fn has_more_commands() {
+      let test_file_path: &Path = Path::new("tests/std_parser/StackArithmetic/SimpleAdd/SimpleAdd.vm");
+      let parser: Parser = Parser::new(test_file_path);
+      assert_eq!(parser.has_more_commands(), true);
+    }
+
+    #[test]
     fn advance() {
       let test_file_path: &Path = Path::new("tests/std_parser/StackArithmetic/SimpleAdd/SimpleAdd.vm");
       let mut parser: Parser = Parser::new(test_file_path);
@@ -26,12 +33,40 @@ mod parser {
       assert_eq!(parser.command_type(), CommandType::PUSH);
       assert_eq!(parser.arg1, "constant");
       assert_eq!(parser.arg2, 7);
+      assert_eq!(parser.command_is_arithmetic, false);
     }
 
     #[test]
-    fn has_more_commands() {
+    fn double_advance() {
       let test_file_path: &Path = Path::new("tests/std_parser/StackArithmetic/SimpleAdd/SimpleAdd.vm");
-      let parser: Parser = Parser::new(test_file_path);
+      let mut parser: Parser = Parser::new(test_file_path);
       assert_eq!(parser.has_more_commands(), true);
+      parser.advance();
+      assert_eq!(parser.has_more_commands(), true);
+      parser.advance();
+      assert_eq!(parser.has_more_commands(), true);
+      assert_eq!(parser.command_type(), CommandType::PUSH);
+      assert_eq!(parser.arg1, "constant");
+      assert_eq!(parser.arg2, 8);
+      assert_eq!(parser.command_is_arithmetic, false);
+    }
+
+    #[test]
+    fn triple_advance() {
+      let test_file_path: &Path = Path::new("tests/std_parser/StackArithmetic/SimpleAdd/SimpleAdd.vm");
+      let mut parser: Parser = Parser::new(test_file_path);
+      assert_eq!(parser.has_more_commands(), true);
+      parser.advance();
+      assert_eq!(parser.has_more_commands(), true);
+      parser.advance();
+      assert_eq!(parser.has_more_commands(), true);
+      parser.advance();
+      assert_eq!(parser.has_more_commands(), false);
+      assert_eq!(parser.command_type(), CommandType::ADD);
+      assert_eq!(parser.command_is_arithmetic, true);
+
+      //These are never used when command type is arithmetic, but for sanity we do a check on it
+      assert_eq!(parser.arg1, "constant");
+      assert_eq!(parser.arg2, 8);
     }
 }
