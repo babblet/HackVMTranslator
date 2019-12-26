@@ -19,13 +19,13 @@ impl CodeWriter {
         //Init Pointers
         let mut buffer: OsString = OsString::new();
 
-        //Stack Segment Pointer
+        //Setup Stack Segment Pointer
         buffer.push("@256\n");
         buffer.push("D=A\n");
         buffer.push("@0\n");
         buffer.push("M=D\n");
 
-        //Local Segment Pointer
+        //Setup Local Segment Pointer
         buffer.push("@2048\n");
         buffer.push("D=A\n");
         buffer.push("@1\n");
