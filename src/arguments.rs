@@ -17,8 +17,8 @@ impl Arguments {
         println!("out_extension: {}", out_extension.to_str().unwrap());
         if in_extension == "vm" && out_extension == "asm" {
             return Ok(Arguments {
-              in_file: OsString::from(in_file.to_str().unwrap()),
-              out_file: OsString::from(out_file.to_str().unwrap()),
+                in_file: OsString::from(in_file.to_str().unwrap()),
+                out_file: OsString::from(out_file.to_str().unwrap()),
             })
         } else {
             //Add message about how to use the cli program

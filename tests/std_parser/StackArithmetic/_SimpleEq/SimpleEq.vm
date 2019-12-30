@@ -1,0 +1,11 @@
+push constant 8
+push constant 8
+eq
+push constant 9
+push constant 9
+eq
+eq
+push constant 9
+push constant 10
+eq
+eq
