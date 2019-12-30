@@ -6,7 +6,7 @@ use std::path::Path;
 
 pub struct Parser {
     pub arg1: OsString,
-    pub arg2: u16,
+    pub arg2: i16,
     pub command_is_arithmetic: bool,
     pub current_command_type: CommandType,
     pub current_unparsed_line: usize,
@@ -95,7 +95,7 @@ impl Parser {
                     match split.next() {
                         Some(x) => {
                             println!("arg2 = {}", x);
-                            self.arg2 = x.parse::<u16>().unwrap();
+                            self.arg2 = x.parse::<i16>().unwrap();
                         },
                         None => return,
                     };
