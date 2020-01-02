@@ -7,7 +7,7 @@ mod parser {
 
     #[test]
     fn new() {
-      let test_file_path: &Path = Path::new("tests/std_parser/StackArithmetic/SimpleAdd/SimpleAdd.vm");
+      let test_file_path: &Path = Path::new("tests/test_files/StackArithmetic/SimpleAdd/SimpleAdd.vm");
       let mut parser: Parser = Parser::new(test_file_path);
       assert_eq!(parser.current_unparsed_line, 0);
       assert_eq!(parser.command_type(), CommandType::NULL);
@@ -18,14 +18,14 @@ mod parser {
 
     #[test]
     fn has_more_commands() {
-      let test_file_path: &Path = Path::new("tests/std_parser/StackArithmetic/SimpleAdd/SimpleAdd.vm");
+      let test_file_path: &Path = Path::new("tests/test_files/StackArithmetic/SimpleAdd/SimpleAdd.vm");
       let parser: Parser = Parser::new(test_file_path);
       assert_eq!(parser.has_more_commands(), true);
     }
 
     #[test]
     fn advance() {
-      let test_file_path: &Path = Path::new("tests/std_parser/StackArithmetic/SimpleAdd/SimpleAdd.vm");
+      let test_file_path: &Path = Path::new("tests/test_files/StackArithmetic/SimpleAdd/SimpleAdd.vm");
       let mut parser: Parser = Parser::new(test_file_path);
       assert_eq!(parser.has_more_commands(), true);
       parser.advance();
@@ -38,7 +38,7 @@ mod parser {
 
     #[test]
     fn double_advance() {
-      let test_file_path: &Path = Path::new("tests/std_parser/StackArithmetic/SimpleAdd/SimpleAdd.vm");
+      let test_file_path: &Path = Path::new("tests/test_files/StackArithmetic/SimpleAdd/SimpleAdd.vm");
       let mut parser: Parser = Parser::new(test_file_path);
       assert_eq!(parser.has_more_commands(), true);
       parser.advance();
@@ -53,7 +53,7 @@ mod parser {
 
     #[test]
     fn triple_advance() {
-      let test_file_path: &Path = Path::new("tests/std_parser/StackArithmetic/SimpleAdd/SimpleAdd.vm");
+      let test_file_path: &Path = Path::new("tests/test_files/StackArithmetic/SimpleAdd/SimpleAdd.vm");
       let mut parser: Parser = Parser::new(test_file_path);
       assert_eq!(parser.has_more_commands(), true);
       parser.advance();

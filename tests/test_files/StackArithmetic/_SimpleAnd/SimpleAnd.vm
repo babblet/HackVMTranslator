@@ -1,0 +1,12 @@
+push constant -1
+push constant 0
+and
+push constant 0
+push constant 0
+and
+push constant -1
+and
+and
+push constant -1
+push constant -1
+and
