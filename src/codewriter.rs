@@ -1,4 +1,5 @@
 use super::commandtype::CommandType;
+use super::address::Address;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
@@ -20,22 +21,29 @@ impl CodeWriter {
         //Init Pointers
         let mut buffer: OsString = OsString::new();
 
-        //Setup Stack Segment Pointer
-        buffer.push("@256\n");
+        buffer.push(format!("@{}\n", Address.stack));
         buffer.push("D=A\n");
         buffer.push("@SP\n");
         buffer.push("M=D\n");
 
-        //Setup Local Segment Pointer
-        buffer.push("@2048\n");
+        buffer.push(format!("@{}\n", Address.local));
         buffer.push("D=A\n");
         buffer.push("@LCL\n");
         buffer.push("M=D\n");
 
-        //Setup Argument Segment Pointer
-        buffer.push("@4096\n");
+        buffer.push(format!("@{}\n", Address.argument));
         buffer.push("D=A\n");
         buffer.push("@ARG\n");
+        buffer.push("M=D\n");
+
+        buffer.push(format!("@{}\n", Address.this));
+        buffer.push("D=A\n");
+        buffer.push("@THIS\n");
+        buffer.push("M=D\n");
+
+        buffer.push(format!("@{}\n", Address.that));
+        buffer.push("D=A\n");
+        buffer.push("@THAT\n");
         buffer.push("M=D\n");
 
         if let Some(buffer) = buffer.to_str() {
@@ -258,23 +266,128 @@ impl CodeWriter {
                 buffer.push(format!("M=M+1\n"));
             },
             CommandType::PUSH => {
-                if segment == "constant" {
-                    if index.clone() == -1 {
-                        buffer.push(format!("D=-1\n"));
-                    } else {
+                match segment.to_str() {
+                    Some("constant") => {
+                        if index.clone() == -1 {
+                            buffer.push(format!("D=-1\n"));
+                        } else {
+                            buffer.push(format!("@{}\n", index));
+                            buffer.push(format!("D=A\n"));
+                        }
+                        
+                        buffer.push(format!("@SP\n"));
+                        buffer.push(format!("A=M\n"));
+                        buffer.push(format!("M=D\n"));
+                        buffer.push(format!("@SP\n"));
+                        buffer.push(format!("M=M+1\n"));
+                    },
+                    Some("local") => {
+                        //buffer.push(format!("@{}\n", Address.local + index));
+
                         buffer.push(format!("@{}\n", index));
                         buffer.push(format!("D=A\n"));
-                    }
-                    
-                    buffer.push(format!("@SP\n"));
-                    buffer.push(format!("A=M\n"));
-                    buffer.push(format!("M=D\n"));
-                    buffer.push(format!("@SP\n"));
-                    buffer.push(format!("M=M+1\n"));
+                        buffer.push(format!("@LCL\n"));
+                        buffer.push(format!("D=M+D\n"));
+                        buffer.push(format!("M=0\n"));
+                        buffer.push(format!("@SP\n"));
+                        buffer.push(format!("M=M+1\n"));
+                        buffer.push(format!("A=M-1\n"));
+                        buffer.push(format!("M=D\n"));
+                    },
+                    Some("argument") => {
+                        //buffer.push(format!("@{}\n", Address.argument + index));
+
+                        buffer.push(format!("@{}\n", index));
+                        buffer.push(format!("D=A\n"));
+                        buffer.push(format!("@ARG\n"));
+                        buffer.push(format!("D=M+D\n"));
+                        buffer.push(format!("M=0\n"));
+                        buffer.push(format!("@SP\n"));
+                        buffer.push(format!("M=M+1\n"));
+                        buffer.push(format!("A=M-1\n"));
+                        buffer.push(format!("M=D\n"));
+                        
+                    },
+                    Some("this") => {
+                        //buffer.push(format!("@{}\n", Address.this + index));
+
+                        buffer.push(format!("@{}\n", index));
+                        buffer.push(format!("D=A\n"));
+                        buffer.push(format!("@THIS\n"));
+                        buffer.push(format!("D=M+D\n"));
+                        buffer.push(format!("M=0\n"));
+                        buffer.push(format!("@SP\n"));
+                        buffer.push(format!("M=M+1\n"));
+                        buffer.push(format!("A=M-1\n"));
+                        buffer.push(format!("M=D\n"));
+                    },
+                    Some("that") => {
+                        //buffer.push(format!("@{}\n", Address.that + index));
+
+                        buffer.push(format!("@{}\n", index));
+                        buffer.push(format!("D=A\n"));
+                        buffer.push(format!("@THIS\n"));
+                        buffer.push(format!("D=M+D\n"));
+                        buffer.push(format!("M=0\n"));
+                        buffer.push(format!("@SP\n"));
+                        buffer.push(format!("M=M+1\n"));
+                        buffer.push(format!("A=M-1\n"));
+                        buffer.push(format!("M=D\n"));
+                    },
+                    _ => ()
                 }
             },
-            CommandType::POP => {
+            CommandType::POP => { //Work in prog
+                match segment.to_str() {
+                    Some("local") => {
+                        buffer.push(format!("@SP\n"));
+                        buffer.push(format!("M=M-1\n"));
+                        buffer.push(format!("A=M\n"));
+                        buffer.push(format!("D=M\n"));
+                        buffer.push(format!("M=0\n"));
 
+                        //buffer.push(format!("@{}\n", Address.local + index));
+                        //buffer.push(format!("M=D\n"));
+
+
+                        buffer.push(format!("@{}\n", index));
+                        buffer.push(format!("D=A\n"));
+                        buffer.push(format!("@LCL\n"));
+                        buffer.push(format!("D=D+A"));
+                    },
+                    Some("argument") => {
+                        buffer.push(format!("@SP\n"));
+                        buffer.push(format!("M=M-1\n"));
+                        buffer.push(format!("D=M\n"));
+                        buffer.push(format!("M=0\n"));
+
+                        //buffer.push(format!("@{}\n", Address.argument + index));
+
+                        buffer.push(format!("M=D\n"));
+                        
+                    },
+                    Some("this") => {
+                        buffer.push(format!("@SP\n"));
+                        buffer.push(format!("M=M-1\n"));
+                        buffer.push(format!("D=M\n"));
+                        buffer.push(format!("M=0\n"));
+
+                        //buffer.push(format!("@{}\n", Address.this + index));
+
+                        buffer.push(format!("M=D\n"));
+                    },
+                    Some("that") => {
+                        buffer.push(format!("@SP\n"));
+                        buffer.push(format!("M=M-1\n"));
+                        buffer.push(format!("D=M\n"));
+                        buffer.push(format!("M=0\n"));
+
+                        //buffer.push(format!("@{}\n", Address.that + index));
+
+                        buffer.push(format!("M=D\n"));
+                    },
+                    _ => ()
+                }
             },
             _ => panic!("Error: CodeWriter::write_arithmetic() failed switch case"),
         }
