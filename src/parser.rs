@@ -72,7 +72,7 @@ impl Parser {
                             else {
                                 self.command_is_arithmetic = true;
                                 if      x == "add" { self.current_command_type = CommandType::ADD; }
-                                else if x == "neg" { self.current_command_type = CommandType::NEG; }
+                                else if x == "sub" { self.current_command_type = CommandType::SUB; }
                                 else if x == "eq"  { self.current_command_type = CommandType::EQ;  }
                                 else if x == "gt"  { self.current_command_type = CommandType::GT;  }
                                 else if x == "lt"  { self.current_command_type = CommandType::LT;  }

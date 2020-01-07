@@ -10,7 +10,7 @@ pub enum CommandType {
     RETURN,
     CALL,
     ADD,
-    NEG,
+    SUB,
     EQ,
     GT,
     LT,
