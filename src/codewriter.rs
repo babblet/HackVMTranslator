@@ -302,6 +302,13 @@ impl CodeWriter {
 					buffer.push(format!("M=M+1\n"));
 					buffer.push(format!("A=M-1\n"));
 					buffer.push(format!("M=D\n"));
+                } else if segment.to_str() == Some("static") {
+					buffer.push(format!("@STATIC{}\n", index));
+					buffer.push(format!("D=M\n"));
+					buffer.push(format!("@SP\n"));
+					buffer.push(format!("M=M+1\n"));
+					buffer.push(format!("A=M-1\n"));
+					buffer.push(format!("M=D\n"));
 				} else {
 					buffer.push(format!("@{}\n", index));
 					buffer.push(format!("D=A\n"));
@@ -351,6 +358,13 @@ impl CodeWriter {
 						},
 						_ => (),
 					}
+					buffer.push(format!("M=D\n"));
+                } else if segment.to_str() == Some("static") {
+					buffer.push(format!("@SP\n"));
+					buffer.push(format!("M=M-1\n"));
+					buffer.push(format!("A=M\n"));
+					buffer.push(format!("D=M\n"));
+					buffer.push(format!("@STATIC{}\n", index));
 					buffer.push(format!("M=D\n"));
 				} else {
 					buffer.push(format!("@{}\n", index));
