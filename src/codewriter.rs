@@ -209,30 +209,30 @@ impl CodeWriter {
 				buffer.push(format!("D=M\n"));
 				//buffer.push(format!("M=0\n")); //257 = 0
 				buffer.push(format!("@COND1{}\n", self.cc));
-				buffer.push(format!("D;JEQ\n")); 
+				buffer.push(format!("D;JEQ\n"));
 
-				buffer.push(format!("@SP\n")); 
-				buffer.push(format!("M=M-1\n")); 
+				buffer.push(format!("@SP\n"));
+				buffer.push(format!("M=M-1\n"));
 				buffer.push(format!("A=M\n"));
 				buffer.push(format!("D=M\n"));
 				buffer.push(format!("@COND2{}\n", self.cc));
-				buffer.push(format!("D;JEQ\n")); 
+				buffer.push(format!("D;JEQ\n"));
 
-				buffer.push(format!("@SP\n")); 
+				buffer.push(format!("@SP\n"));
 				buffer.push(format!("A=M\n"));
-				buffer.push(format!("M=-1\n")); 
+				buffer.push(format!("M=-1\n"));
 				buffer.push(format!("@CONDEND{}\n", self.cc));
 				buffer.push(format!("0;JEQ\n"));
 
-				buffer.push(format!("(COND1{})\n", self.cc)); 
-				buffer.push(format!("@SP\n")); 
+				buffer.push(format!("(COND1{})\n", self.cc));
+				buffer.push(format!("@SP\n"));
 				buffer.push(format!("A=M\n"));
 				buffer.push(format!("M=0\n"));
-				buffer.push(format!("@SP\n")); 
-				buffer.push(format!("M=M-1\n")); 
+				buffer.push(format!("@SP\n"));
+				buffer.push(format!("M=M-1\n"));
 
-				buffer.push(format!("(COND2{})\n", self.cc)); 
-				buffer.push(format!("@SP\n")); 
+				buffer.push(format!("(COND2{})\n", self.cc));
+				buffer.push(format!("@SP\n"));
 				buffer.push(format!("A=M\n"));
 				buffer.push(format!("M=0\n"));
 
@@ -242,22 +242,22 @@ impl CodeWriter {
 			},
 			CommandType::NOT => {
 				self.cc = self.cc + 1;
-				buffer.push(format!("@SP\n")); 
-				buffer.push(format!("M=M-1\n")); 
+				buffer.push(format!("@SP\n"));
+				buffer.push(format!("M=M-1\n"));
 				buffer.push(format!("A=M\n"));
 				buffer.push(format!("D=M\n"));
 				buffer.push(format!("@CONDTRUE{}\n", self.cc));
 				buffer.push(format!("D;JEQ\n"));
 
 				buffer.push(format!("\n"));
-				buffer.push(format!("@SP\n")); 
+				buffer.push(format!("@SP\n"));
 				buffer.push(format!("A=M\n"));
 				buffer.push(format!("M=0\n"));
 				buffer.push(format!("@CONDEND{}\n", self.cc));
 				buffer.push(format!("0;JEQ\n"));
 
 				buffer.push(format!("(CONDTRUE{})\n", self.cc));
-				buffer.push(format!("@SP\n")); 
+				buffer.push(format!("@SP\n"));
 				buffer.push(format!("A=M\n"));
 				buffer.push(format!("M=-1\n"));
 
@@ -287,11 +287,26 @@ impl CodeWriter {
 					buffer.push(format!("A=M-1\n"));
 					buffer.push(format!("M=D\n"));
 
+                } else if segment.to_str() == Some("pointer") {
+                    match index {
+						0 => {
+							buffer.push(format!("@THIS\n"));
+						},
+						1 => {
+							buffer.push(format!("@THAT\n"));
+						},
+						_ => (),
+					}
+					buffer.push(format!("D=M\n"));
+					buffer.push(format!("@SP\n"));
+					buffer.push(format!("M=M+1\n"));
+					buffer.push(format!("A=M-1\n"));
+					buffer.push(format!("M=D\n"));
 				} else {
 					buffer.push(format!("@{}\n", index));
 					buffer.push(format!("D=A\n"));
 					match segment.to_str() {
-						Some("local") => { 
+						Some("local") => {
 							buffer.push(format!("@LCL\n"));
 						},
 						Some("argument") => {
@@ -320,6 +335,22 @@ impl CodeWriter {
 					buffer.push(format!("A=M\n"));
 					buffer.push(format!("D=M\n"));
 					buffer.push(format!("@{}\n", index + 5));
+					buffer.push(format!("M=D\n"));
+
+                } else if segment.to_str() == Some("pointer") {
+					buffer.push(format!("@SP\n"));
+					buffer.push(format!("M=M-1\n"));
+					buffer.push(format!("A=M\n"));
+					buffer.push(format!("D=M\n"));
+                    match index {
+						0 => {
+							buffer.push(format!("@THIS\n"));
+						},
+						1 => {
+							buffer.push(format!("@THAT\n"));
+						},
+						_ => (),
+					}
 					buffer.push(format!("M=D\n"));
 				} else {
 					buffer.push(format!("@{}\n", index));
