@@ -11,6 +11,7 @@ pub enum CommandType {
     CALL,
     ADD,
     SUB,
+    NEG,
     EQ,
     GT,
     LT,
