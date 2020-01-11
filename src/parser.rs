@@ -4,7 +4,7 @@ use std::io::Read;
 use std::ffi::OsString;
 use std::path::Path;
 
-pub struct Parser {
+pub struct FileParser {
     pub arg1: OsString,
     pub arg2: i16,
     pub command_is_arithmetic: bool,
@@ -13,8 +13,8 @@ pub struct Parser {
     pub in_file_lines: Vec<OsString>,
 }
 
-impl Parser {
-    pub fn new(path: &Path) -> Parser {
+impl FileParser {
+    pub fn new(path: &Path) -> FileParser {
         println!("DEBUG: path = {}", path.to_str().unwrap());
 
         let mut in_file: File = match File::open(path) {
@@ -30,7 +30,7 @@ impl Parser {
 
         let lines: Vec<OsString> = buffer.lines().map(|x| OsString::from(x)).collect();
 
-        return Parser {
+        return FileParser {
             arg1: OsString::new(),
             arg2: 0,
             command_is_arithmetic: false,

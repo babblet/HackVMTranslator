@@ -15,47 +15,12 @@ impl CodeWriter {
 	pub fn new(path: &Path) -> CodeWriter {
 		let mut file: File = match File::create(path) {
 			Ok(file) => file,
-			Err(e) => panic!("Error when creating file: {}", e),
+			Err(e) => panic!("{}", e),
 		};
-
-		//Init Pointers
-		let mut buffer: OsString = OsString::new();
-
-		//buffer.push(format!("@{}\n", Address.stack));
-		//buffer.push("D=A\n");
-		//buffer.push("@SP\n");
-		//buffer.push("M=D\n");
-
-		//buffer.push(format!("@{}\n", Address.local));
-		//buffer.push("D=A\n");
-		//buffer.push("@LCL\n");
-		//buffer.push("M=D\n");
-
-		//buffer.push(format!("@{}\n", Address.argument));
-		//buffer.push("D=A\n");
-		//buffer.push("@ARG\n");
-		//buffer.push("M=D\n");
-
-		//buffer.push(format!("@{}\n", Address.this));
-		//buffer.push("D=A\n");
-		//buffer.push("@THIS\n");
-		//buffer.push("M=D\n");
-
-		//buffer.push(format!("@{}\n", Address.that));
-		//buffer.push("D=A\n");
-		//buffer.push("@THAT\n");
-		//buffer.push("M=D\n");
-
-		if let Some(buffer) = buffer.to_str() {
-			match file.write(buffer.as_bytes()) {
-				Err(e) => panic!("Error: {}", e),
-				_ => ()
-			}
-		}
 
 		return CodeWriter {
 			cc: 0,
-	    		out_file: file,
+	    	out_file: file,
 		}
 	}
 
@@ -339,7 +304,7 @@ impl CodeWriter {
 		if let Some(buffer) = buffer.to_str() {
 			match self.out_file.write(buffer.as_bytes()) {
 				Err(e) => panic!("Error: {}", e),
-					_ => ()
+				_ => ()
 			}
 		}
 	}
