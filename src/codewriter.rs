@@ -24,7 +24,7 @@ impl CodeWriter {
     }
   }
 
-  pub fn write(&mut self, command: CommandType, segment: &OsString, index: &i16) {
+  pub fn write(&mut self, command: CommandType, segment: &OsString, index: &i16) -> Result<(), String>{
     let mut buffer: OsString = OsString::new();
     match command {
       CommandType::ADD => {
@@ -275,7 +275,24 @@ impl CodeWriter {
           buffer.push(format!("M=D\n"));
         }
       },
-      _ => panic!("Error: CodeWriter::write_arithmetic() failed switch case"),
+      CommandType::LABEL => {
+          buffer.push(format!("({})\n", segment.to_str().unwrap_or("")));
+      },
+      CommandType::GOTO => {
+          buffer.push(format!("@{}\n", segment.to_str().unwrap_or("")));
+          buffer.push(format!("0;JMP\n"));
+      },
+      CommandType::IFGOTO => {
+          buffer.push(format!("@SP\n"));
+          buffer.push(format!("M=M-1\n"));
+          buffer.push(format!("A=M\n"));
+          buffer.push(format!("D=M\n"));
+          buffer.push(format!("@{}\n", segment.to_str().unwrap_or("")));
+          buffer.push(format!("D;JNE\n"));
+      },
+      CommandType::FUNCTION => {},
+      CommandType::RETURN => {},
+      _ => return Err(format!("(some command) with segment {} not implemented", segment.to_str().unwrap_or(""))),
     }
 
     if let Some(buffer) = buffer.to_str() {
@@ -284,5 +301,6 @@ impl CodeWriter {
         _ => ()
       }
     }
+    return Ok(());
   }
 }

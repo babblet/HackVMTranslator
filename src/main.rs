@@ -31,7 +31,13 @@ fn main() {
       parser.advance();
 
       let command_type: CommandType = parser.command_type();
-      codewriter.write(command_type, &parser.arg1, &parser.arg2);
+      match codewriter.write(command_type, &parser.arg1, &parser.arg2) {
+        Err(err) => {
+          println!("Codewriter error: {}", err);
+          return ();
+        },
+        _ => ()
+      }
     }
   }
 }

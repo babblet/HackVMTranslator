@@ -46,62 +46,60 @@ impl FileParser {
 
   pub fn advance(&mut self) {
     let line: String = String::from(self.in_file_lines[self.current_unparsed_line].to_str().unwrap());
-    if line.trim().is_empty() {
+    if line.trim().is_empty() || line.split("//").next().unwrap_or("").is_empty() {
       self.in_file_lines.remove(self.current_unparsed_line);
       self.advance();
     } else {
-      match line.find("//") {
-        Some(_) => {
-          self.in_file_lines.remove(self.current_unparsed_line);
-          self.advance();
+      self.current_unparsed_line = self.current_unparsed_line + 1;
+      let mut split = line.split(' ');
+      match split.next() {
+        Some(_x) => {
+          let x = _x.trim();
+          println!("command = {}", x);
+          if      x == "if-goto"  { self.current_command_type = CommandType::IFGOTO;   }
+          else if x == "goto"     { self.current_command_type = CommandType::GOTO;     }
+          else if x == "push"     { self.current_command_type = CommandType::PUSH;     }
+          else if x == "pop"      { self.current_command_type = CommandType::POP;      }
+          else if x == "call"     { self.current_command_type = CommandType::CALL;     }
+          else if x == "label"    { self.current_command_type = CommandType::LABEL;    }
+          else if x == "return"   { self.current_command_type = CommandType::RETURN;   }
+          else if x == "function" { self.current_command_type = CommandType::FUNCTION; }
+          else {
+            self.command_is_arithmetic = true;
+            if      x == "add" { self.current_command_type = CommandType::ADD; }
+            else if x == "sub" { self.current_command_type = CommandType::SUB; }
+            else if x == "neg" { self.current_command_type = CommandType::NEG; }
+            else if x == "eq"  { self.current_command_type = CommandType::EQ;  }
+            else if x == "gt"  { self.current_command_type = CommandType::GT;  }
+            else if x == "lt"  { self.current_command_type = CommandType::LT;  }
+            else if x == "or"  { self.current_command_type = CommandType::OR;  }
+            else if x == "and" { self.current_command_type = CommandType::AND; }
+            else if x == "not" { self.current_command_type = CommandType::NOT; }
+          }
         },
-        None => {
-          self.current_unparsed_line = self.current_unparsed_line + 1;
-          let mut split = line.split(' ');
-          match split.next() {
-            Some(x) => {
-              println!("command = {}", x);
-              if      x == "if"       { self.current_command_type = CommandType::IF;       }
-              else if x == "goto"     { self.current_command_type = CommandType::GOTO;     }
-              else if x == "push"     { self.current_command_type = CommandType::PUSH;     }
-              else if x == "pop"      { self.current_command_type = CommandType::POP;      }
-              else if x == "call"     { self.current_command_type = CommandType::CALL;     }
-              else if x == "label"    { self.current_command_type = CommandType::LABEL;    }
-              else if x == "return"   { self.current_command_type = CommandType::RETURN;   }
-              else if x == "function" { self.current_command_type = CommandType::FUNCTION; }
-              else {
-                self.command_is_arithmetic = true;
-                if      x == "add" { self.current_command_type = CommandType::ADD; }
-                else if x == "sub" { self.current_command_type = CommandType::SUB; }
-                else if x == "neg" { self.current_command_type = CommandType::NEG; }
-                else if x == "eq"  { self.current_command_type = CommandType::EQ;  }
-                else if x == "gt"  { self.current_command_type = CommandType::GT;  }
-                else if x == "lt"  { self.current_command_type = CommandType::LT;  }
-                else if x == "or"  { self.current_command_type = CommandType::OR;  }
-                else if x == "and" { self.current_command_type = CommandType::AND; }
-                else if x == "not" { self.current_command_type = CommandType::NOT; }
-              }
-            },
-            None => return,
-          };
+        None => return,
+      };
 
-          match split.next() {
-            Some(x) => {
-              println!("arg1 = {}", x);
-              self.arg1 = OsString::from(x);
-            },
-            None => return,
-          };
+      match split.next() {
+        Some(_x) => {
+          let x = _x.trim();
+          println!("arg1 = {}", x);
+          self.arg1 = OsString::from(x);
+        },
+        None => return,
+      };
 
-          match split.next() {
-            Some(x) => {
-              println!("arg2 = {}", x);
-              self.arg2 = x.parse::<i16>().unwrap();
-            },
-            None => return,
+      match split.next() {
+        Some(_x) => {
+          let x = _x.trim();
+          println!("arg2 = {}test", x);
+          self.arg2 = match x.parse::<i16>() {
+            Ok(i) => i,
+            _ => return,
           };
-        }
-      }
+        },
+        None => return,
+      };
     }
   }
 

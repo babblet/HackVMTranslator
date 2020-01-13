@@ -5,7 +5,7 @@ pub enum CommandType {
   POP,
   LABEL,
   GOTO,
-  IF,
+  IFGOTO,
   FUNCTION,
   RETURN,
   CALL,
