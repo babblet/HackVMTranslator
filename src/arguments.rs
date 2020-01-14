@@ -8,21 +8,27 @@ use std::path::PathBuf;
 fn get_directory_files(path: &Path) -> Option<Vec<OsString>> {
   match read_dir(path) {
     Ok(entries) => {
-      println!("Got entries");
       let mut files: Vec<OsString> = Vec::new();
+      let mut sys_path: OsString = OsString::from("");
       for entry in entries {
-        println!("Got entry");
         match entry {
           Ok(file) => {
             println!("Got file");
             let path: PathBuf = file.path();
-            if path.extension().unwrap_or_default().to_str() == Some("vm") {
-              files.push(path.into_os_string());
+            let string_path: OsString = OsString::from(path.to_str().unwrap_or(""));
+            if Path::new(string_path.to_str().unwrap_or("")).file_name() == Some(&OsStr::new("Sys.vm")) {
+              sys_path = string_path;
+            } else if path.extension().unwrap_or_default().to_str() == Some("vm") {
+              files.push(string_path);
             }
           },
           Err(e) => println!("{}", e),
         }
       }
+      if !sys_path.is_empty() {
+        files.insert(0, sys_path);
+      }
+
       if files.len() != 0 {
         return Some(files);
       }

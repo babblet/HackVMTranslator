@@ -92,7 +92,7 @@ impl FileParser {
       match split.next() {
         Some(_x) => {
           let x = _x.trim();
-          println!("arg2 = {}test", x);
+          println!("arg2 = {}", x);
           self.arg2 = match x.parse::<i16>() {
             Ok(i) => i,
             _ => return,
