@@ -64,7 +64,8 @@ D=M
 @LCL
 M=D
 @Sys.main
-0;JMP(Sys.init$ret.0)
+0;JMP
+(Sys.init$ret.0)
 @SP
 M=M-1
 A=M
@@ -226,7 +227,8 @@ D=M
 @LCL
 M=D
 @Sys.add12
-0;JMP(Sys.main$ret.0)
+0;JMP
+(Sys.main$ret.0)
 @SP
 M=M-1
 A=M

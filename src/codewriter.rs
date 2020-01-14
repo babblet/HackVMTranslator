@@ -350,7 +350,7 @@ impl CodeWriter {
         buffer.push(format!("M=D\n"));
 
         buffer.push(format!("@{}\n", segment.to_str().unwrap_or("")));
-        buffer.push(format!("0;JMP"));
+        buffer.push(format!("0;JMP\n"));
         buffer.push(format!(
           "({}$ret.{})\n",
           self.context_name.last().unwrap_or(&"".to_string()),
