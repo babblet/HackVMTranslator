@@ -7,7 +7,7 @@ pub struct _Address {
   pub that: i16,
 }
 
-pub const Address: _Address = _Address {
+pub const ADDRESS: _Address = _Address {
   stack: 256,
   local: 400,
   argument: 500,

@@ -1,4 +1,3 @@
-use std::fs;
 use std::fs::read_dir;
 use std::ffi::OsStr;
 use std::ffi::OsString;
@@ -51,7 +50,7 @@ impl Arguments {
     let _output = Path::new(&arguments[2]);
 
     let output = match _output.extension() {
-      Some(extension) => {
+      Some(_) => {
         OsString::from(_output.to_str().unwrap())
       },
       None => return Err("Output file wrong format!".to_string()),

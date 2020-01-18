@@ -1,16 +1,17 @@
 use super::commandtype::CommandType;
-//use super::address::Address;
+//use super::address::ADDRESS;
 //use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 use std::ffi::OsString;
+use std::collections::HashMap;
 
 pub struct CodeWriter {
   cc: u16,
   out_file: File,
-  context_name: Vec<String>,
-  context_index: Vec<u16>,
+  functions: HashMap<OsString, u16>,
+  function_context: Vec<OsString>
 }
 
 impl CodeWriter {
@@ -23,29 +24,64 @@ impl CodeWriter {
     return CodeWriter {
       cc: 0,
       out_file: file,
-      context_name: Vec::new(),
-      context_index: Vec::new(),
+      functions: HashMap::new(),
+      function_context: Vec::new()
     }
   }
 
-  fn push_context(&mut self, name: String) {
-    self.context_name.push(name);
-    self.context_index.push(0);
+  fn get_function_value(&self, segment: &OsString) -> Option<u16> {
+    return match self.functions.get(segment) {
+      Some(value) => Some(*value),
+      None => None,
+    };
   }
 
-  fn add_context(&mut self) {
-    let x = self.context_index.pop().unwrap() + 1;
-    self.context_index.push(x);
+  fn push_function(&mut self, segment: &OsString) {
+    match self.get_function_value(segment) {
+      Some(_) => { self.function_context.push(segment.to_os_string()); }
+      _ => { self.functions.insert(segment.to_os_string(), 0); }
+    };
   }
 
-  fn pop_context(&mut self) {
-    self.context_name.pop();
-    self.context_index.pop();
+  fn add_call_context(&mut self, segment: &OsString) -> u16 {
+    match self.get_function_value(segment) {
+      Some(value) => { 
+        self.functions.insert(segment.to_os_string(), value + 1);
+        return value;
+      }
+      None => {
+        self.functions.insert(segment.to_os_string(), 1);
+        return 1;
+      },
+    };
   }
 
-  pub fn write(&mut self, command: CommandType, segment: &OsString, index: i16) -> Result<(), String>{
+
+  pub fn write(&mut self, command: CommandType, segment: &OsString, index: i16, from_file_name: &OsString) -> Result<(), String>{
     let mut buffer: OsString = OsString::new();
     match command {
+      CommandType::BOOTSTRAP => {
+        buffer.push(format!("@{}\n", 256));
+        buffer.push(format!("D=A\n"));
+        buffer.push(format!("@SP\n"));
+        buffer.push(format!("M=D\n"));
+        
+        buffer.push(format!("@LCL\n"));
+        buffer.push(format!("M=-1\n"));
+        buffer.push(format!("D=M-1\n"));
+
+        buffer.push(format!("@ARG\n"));
+        buffer.push(format!("M=D\n"));
+        buffer.push(format!("D=M-1\n"));
+
+        buffer.push(format!("@THIS\n"));
+        buffer.push(format!("M=D\n"));
+        buffer.push(format!("D=M-1\n"));
+
+        buffer.push(format!("@THAT\n"));
+        buffer.push(format!("M=D\n"));
+        buffer.push(format!("D=M-1\n"));
+      },
       CommandType::ADD => {
         buffer.push(format!("@SP\n"));
         buffer.push(format!("A=M-1\n"));
@@ -201,7 +237,7 @@ impl CodeWriter {
           buffer.push(format!("A=M-1\n"));
           buffer.push(format!("M=D\n"));
         } else if segment.to_str() == Some("static") {
-          buffer.push(format!("@STATIC{}\n", index));
+          buffer.push(format!("@STATIC.{}{}\n", from_file_name.to_str().unwrap_or(""), index));
           buffer.push(format!("D=M\n"));
           buffer.push(format!("@SP\n"));
           buffer.push(format!("M=M+1\n"));
@@ -261,7 +297,7 @@ impl CodeWriter {
           buffer.push(format!("M=M-1\n"));
           buffer.push(format!("A=M\n"));
           buffer.push(format!("D=M\n"));
-          buffer.push(format!("@STATIC{}\n", index));
+          buffer.push(format!("@STATIC.{}{}\n", from_file_name.to_str().unwrap_or(""), index));
           buffer.push(format!("M=D\n"));
         } else {
           buffer.push(format!("@{}\n", index));
@@ -310,16 +346,14 @@ impl CodeWriter {
         buffer.push(format!("D;JNE\n"));
       },
       CommandType::CALL => {
-        buffer.push(format!(
-          "@{}$ret.{}\n",
-          self.context_name.last().unwrap_or(&"".to_string()),
-          self.context_index.last().unwrap()
-        ));
+        let context_value = self.add_call_context(segment);
+        buffer.push(format!("@{}$ret.{}\n", segment.to_str().unwrap_or(""), context_value));
         buffer.push(format!("D=A\n"));
         buffer.push(format!("@SP\n"));
         buffer.push(format!("M=M+1\n"));
         buffer.push(format!("A=M-1\n"));
         buffer.push(format!("M=D\n"));
+
 
         let addresses = vec![
           "LCL".to_string(),
@@ -355,13 +389,13 @@ impl CodeWriter {
         buffer.push(format!("0;JMP\n"));
         buffer.push(format!(
           "({}$ret.{})\n",
-          self.context_name.last().unwrap_or(&"".to_string()),
-          self.context_index.last().unwrap()
+          segment.to_str().unwrap_or(""),
+          context_value
         ));
 
       },
       CommandType::FUNCTION => {
-        self.push_context(segment.to_str().unwrap_or("").to_string());
+        self.push_function(segment);
         buffer.push(format!("({})\n", segment.to_str().unwrap_or("")));
 
         for _ in (0 as i16)..index {
@@ -376,6 +410,14 @@ impl CodeWriter {
         buffer.push(format!("@LCL\n"));
         buffer.push(format!("D=M\n"));
         buffer.push(format!("@R14\n"));
+        buffer.push(format!("M=D\n"));
+
+        buffer.push(format!("@5\n"));
+        buffer.push(format!("D=A\n"));
+        buffer.push(format!("@LCL\n"));
+        buffer.push(format!("A=M-D\n"));
+        buffer.push(format!("D=M\n"));
+        buffer.push(format!("@R15\n"));
         buffer.push(format!("M=D\n"));
 
         buffer.push(format!("@SP\n"));
@@ -404,27 +446,12 @@ impl CodeWriter {
           buffer.push(format!("D=M\n"));
           buffer.push(format!("@{}\n", address));
           buffer.push(format!("M=D\n"));
-
           index = index + 1;
         }
 
-        self.pop_context();
-        match self.context_name.last() {
-          Some(x) => {
-            println!("context_name: {}", x);
-            buffer.push(format!(
-              "@{}$ret.{}\n",
-              x,
-              self.context_index.last().unwrap()
-            ));
-            buffer.push(format!("0;JMP\n"));
-          },
-          None => {
-            buffer.push(format!("(MAIN_END)\n"));
-            buffer.push(format!("@MAIN_END\n"));
-            buffer.push(format!("0;JMP\n"));
-          },
-        };
+        buffer.push(format!("@R15\n"));
+        buffer.push(format!("A=M\n"));
+        buffer.push(format!("0;JMP\n"));
       },
       _ => return Err(format!("(some command) with segment {} not implemented", segment.to_str().unwrap_or(""))),
     }

@@ -5,6 +5,7 @@ use std::ffi::OsString;
 use std::path::Path;
 
 pub struct FileParser {
+  pub file_name: OsString,
   pub arg1: OsString,
   pub arg2: i16,
   pub command_is_arithmetic: bool,
@@ -22,6 +23,11 @@ impl FileParser {
       Err(e) => panic!("Failed to load {}: {}", path.to_str().unwrap(), e)
     };
 
+    let file_name = match path.file_name() {
+      Some(file_name) => file_name.to_os_string(),
+      None => OsString::from(""),
+    };
+
     let mut buffer = String::new();
     match in_file.read_to_string(&mut buffer) {
       Ok(size) => println!("Read {} bytes from {}", size, path.to_str().unwrap()),
@@ -31,6 +37,7 @@ impl FileParser {
     let lines: Vec<OsString> = buffer.lines().map(|x| OsString::from(x)).collect();
 
     return FileParser {
+      file_name: file_name,
       arg1: OsString::new(),
       arg2: 0,
       command_is_arithmetic: false,
@@ -51,7 +58,8 @@ impl FileParser {
       self.advance();
     } else {
       self.current_unparsed_line = self.current_unparsed_line + 1;
-      let mut split = line.split(' ');
+      let mut _split = line.split('\t');
+      let mut split = _split.next().unwrap().split(' ');
       match split.next() {
         Some(_x) => {
           let x = _x.trim();

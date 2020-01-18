@@ -8,6 +8,7 @@ pub enum CommandType {
   IFGOTO,
   FUNCTION,
   RETURN,
+  BOOTSTRAP,
   CALL,
   ADD,
   SUB,
