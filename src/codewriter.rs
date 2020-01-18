@@ -1,17 +1,14 @@
-use super::commandtype::CommandType;
-//use super::address::ADDRESS;
-//use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 use std::ffi::OsString;
-use std::collections::HashMap;
+
+use super::context::Context;
+use super::commandtype::CommandType;
 
 pub struct CodeWriter {
   cc: u16,
   out_file: File,
-  functions: HashMap<OsString, u16>,
-  function_context: Vec<OsString>
 }
 
 impl CodeWriter {
@@ -24,40 +21,10 @@ impl CodeWriter {
     return CodeWriter {
       cc: 0,
       out_file: file,
-      functions: HashMap::new(),
-      function_context: Vec::new()
     }
   }
 
-  fn get_function_value(&self, segment: &OsString) -> Option<u16> {
-    return match self.functions.get(segment) {
-      Some(value) => Some(*value),
-      None => None,
-    };
-  }
-
-  fn push_function(&mut self, segment: &OsString) {
-    match self.get_function_value(segment) {
-      Some(_) => { self.function_context.push(segment.to_os_string()); }
-      _ => { self.functions.insert(segment.to_os_string(), 0); }
-    };
-  }
-
-  fn add_call_context(&mut self, segment: &OsString) -> u16 {
-    match self.get_function_value(segment) {
-      Some(value) => { 
-        self.functions.insert(segment.to_os_string(), value + 1);
-        return value;
-      }
-      None => {
-        self.functions.insert(segment.to_os_string(), 1);
-        return 1;
-      },
-    };
-  }
-
-
-  pub fn write(&mut self, command: CommandType, segment: &OsString, index: i16, from_file_name: &OsString) -> Result<(), String>{
+  pub fn write(&mut self, command: CommandType, segment: &OsString, index: i16, from_file_name: &OsString, context: &mut Context) -> Result<(), String>{
     let mut buffer: OsString = OsString::new();
     match command {
       CommandType::BOOTSTRAP => {
@@ -346,7 +313,7 @@ impl CodeWriter {
         buffer.push(format!("D;JNE\n"));
       },
       CommandType::CALL => {
-        let context_value = self.add_call_context(segment);
+        let context_value = context.add_call_context(segment);
         buffer.push(format!("@{}$ret.{}\n", segment.to_str().unwrap_or(""), context_value));
         buffer.push(format!("D=A\n"));
         buffer.push(format!("@SP\n"));
@@ -395,7 +362,7 @@ impl CodeWriter {
 
       },
       CommandType::FUNCTION => {
-        self.push_function(segment);
+        context.push_function(segment);
         buffer.push(format!("({})\n", segment.to_str().unwrap_or("")));
 
         for _ in (0 as i16)..index {

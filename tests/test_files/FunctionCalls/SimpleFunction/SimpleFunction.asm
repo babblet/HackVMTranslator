@@ -77,6 +77,13 @@ M=D+1
 D=M
 @R14
 M=D
+@5
+D=A
+@LCL
+A=M-D
+D=M
+@R15
+M=D
 @SP
 A=M-1
 D=M
@@ -114,6 +121,6 @@ A=M-D
 D=M
 @LCL
 M=D
-(MAIN_END)
-@MAIN_END
+@R15
+A=M
 0;JMP

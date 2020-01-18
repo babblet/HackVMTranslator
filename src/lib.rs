@@ -3,5 +3,6 @@ pub mod address;
 pub mod arguments;
 pub mod parser;
 pub mod codewriter;
+pub mod context;
 
 pub mod helpers {}
